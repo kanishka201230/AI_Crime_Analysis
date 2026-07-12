@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AegisEye AI - Advanced Crime Analytics & Visualization</title>
+  
+  <!-- Clear Favicon 404 logs -->
+  <link rel="icon" href="data:;base64,iVBORw0kQ=">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Leaflet Map CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  
+  <!-- Vis.js Network CSS & JS -->
+  <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+  
+  <!-- ApexCharts CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Secure Login Portal Overlay -->
+  <div class="login-wrapper" id="login-wrapper">
+    <div class="cyber-grid"></div>
+    <div class="scanlines"></div>
+    
+    <div class="login-card">
+      <div class="login-header">
+        <div class="login-badge-emblem">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div class="login-title">
+          <h2>AEGISEYE</h2>
+          <span class="login-subtitle">TACTICAL SECURE NODE // PORTAL</span>
+        </div>
+      </div>
+      
+      <!-- Law Enforcement Security Notice -->
+      <div class="security-warning">
+        <div class="warning-header">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <span>SECURED LAW ENFORCEMENT NETWORK</span>
+        </div>
+        <p>WARNING: THIS TERMINAL IS STRICTLY RESERVED FOR AUTHORIZED POLICE DEPT EMPLOYEES. UNAUTHORIZED ACCESS IS A FEDERAL CRIME AND IS ACTIVELY TRACKED, LOGGED, AND PROSECUTED UNDER COMPUTER CRIMES ACTS.</p>
+      </div>
+
+      <!-- Authentication Form Container -->
+      <div id="auth-form-container">
+        <!-- Auth Tabs Toggle -->
+        <div class="auth-tabs">
+          <button type="button" class="auth-tab active" id="tab-login">
+            <i class="fa-solid fa-key"></i> OPERATOR SIGN-IN
+          </button>
+          <button type="button" class="auth-tab" id="tab-signup">
+            <i class="fa-solid fa-user-plus"></i> REQUEST ACCESS
+          </button>
+        </div>
+
+        <!-- Form 1: Operator Sign-In -->
+        <form class="auth-form active" id="login-form-block" autocomplete="off" onsubmit="return false;">
+          <div class="form-group-login">
+            <label for="login-username">Operator Username</label>
+            <div class="input-icon-wrapper">
+              <i class="fa-solid fa-user input-icon"></i>
+              <input type="text" id="login-username" class="form-control-login" placeholder="e.g. miller" required>
+            </div>
+          </div>
+          <div class="form-group-login">
+            <label for="login-password">Clearance Password</label>
+            <div class="input-icon-wrapper">
+              <i class="fa-solid fa-lock input-icon"></i>
+              <input type="password" id="login-password" class="form-control-login" placeholder="••••••••" required>
+            </div>
+          </div>
+          
+          <div id="login-error-msg" class="alert-msg text-red"></div>
+          
+          <button type="submit" id="btn-login-submit" class="btn-login w-100">
+            <i class="fa-solid fa-unlock-keyhole"></i> AUTHENTICATE SESSION
+          </button>
+        </form>
+
+        <!-- Form 2: Access Registration (Sign Up) -->
+        <form class="auth-form" id="signup-form-block" autocomplete="off" onsubmit="return false;">
+          <div class="form-row-login">
+            <div class="form-group-login">
+              <label for="signup-name">Full Name</label>
+              <div class="input-icon-wrapper">
+                <i class="fa-solid fa-user-tag input-icon"></i>
+                <input type="text" id="signup-name" class="form-control-login" placeholder="e.g. Det. Judy Hopps" required>
+              </div>
+            </div>
+            <div class="form-group-login">
+              <label for="signup-badge">Badge ID</label>
+              <div class="input-icon-wrapper">
+                <i class="fa-solid fa-id-badge input-icon"></i>
+                <input type="text" id="signup-badge" class="form-control-login" placeholder="e.g. ZPD-2016" required>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group-login">
+            <label for="signup-role">Department Role / Rank</label>
+            <div class="input-icon-wrapper">
+              <i class="fa-solid fa-user-shield input-icon"></i>
+              <select id="signup-role" class="form-control-login select-login" required>
+                <option value="" disabled selected>Select Role/Rank...</option>
+                <option value="Officer">Officer</option>
+                <option value="Detective">Detective</option>
+                <option value="Sergeant">Sergeant</option>
+                <option value="Lieutenant">Lieutenant</option>
+                <option value="Captain">Captain</option>
+                <option value="Lead Analyst">Lead Analyst</option>
+                <option value="Technical Specialist">Technical Specialist</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group-login">
+            <label for="signup-username">Desired Username</label>
+            <div class="input-icon-wrapper">
+              <i class="fa-solid fa-at input-icon"></i>
+              <input type="text" id="signup-username" class="form-control-login" placeholder="e.g. hopps" required>
+            </div>
+          </div>
+
+          <div class="form-group-login">
+            <label for="signup-password">Secure Password</label>
+            <div class="input-icon-wrapper">
+              <i class="fa-solid fa-lock input-icon"></i>
+              <input type="password" id="signup-password" class="form-control-login" placeholder="••••••••" required>
+            </div>
+          </div>
+          
+          <div id="signup-error-msg" class="alert-msg text-red"></div>
+          
+          <button type="submit" id="btn-signup-submit" class="btn-login w-100">
+            <i class="fa-solid fa-shield-halved"></i> REGISTER CREDENTIALS
+          </button>
+        </form>
+      </div>
+
+      <!-- Holographic Scanning Console Loader -->
+      <div id="auth-scanning-container" class="scanning-container">
+        <div class="scanner-sweep"></div>
+        <div class="spinner-cyber"></div>
+        <div class="scanning-label orbitron">DECRYPTING SECURITY TOKEN</div>
+        <div id="scan-console-text" class="console-box"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-container">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div class="brand-name">
+          <h1>AEGISEYE</h1>
+          <span class="brand-subtitle">CRIME ANALYTICS AI</span>
+        </div>
+      </div>
+      
+      <div class="system-status-indicator">
+        <span class="pulse-dot status-danger"></span>
+        <span class="status-text">ALERT LEVEL: HIGH</span>
+      </div>
+      
+      <nav class="sidebar-menu">
+        <a href="#" class="menu-item active" data-tab="dashboard">
+          <i class="fa-solid fa-gauge-high"></i>
+          <span>Tactical Command</span>
+        </a>
+        <a href="#" class="menu-item" data-tab="map">
+          <i class="fa-solid fa-map-location-dot"></i>
+          <span>Spatial Analysis</span>
+        </a>
+        <a href="#" class="menu-item" data-tab="network">
+          <i class="fa-solid fa-circle-nodes"></i>
+          <span>Network Link</span>
+        </a>
+        <a href="#" class="menu-item" data-tab="predictive">
+          <i class="fa-solid fa-brain"></i>
+          <span>Predictive Insights</span>
+        </a>
+        <a href="#" class="menu-item" data-tab="explorer">
+          <i class="fa-solid fa-database"></i>
+          <span>Unified Explorer</span>
+        </a>
+        <a href="#" class="menu-item" data-tab="chat">
+          <i class="fa-solid fa-robot"></i>
+          <span>AI Investigator</span>
+        </a>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <div class="footer-user">
+          <i class="fa-solid fa-circle-user footer-avatar"></i>
+          <div class="user-info">
+            <span class="user-name" id="current-user-name">Det. Miller</span>
+            <span class="user-role" id="current-user-role">Lead Analyst</span>
+            <span class="user-badge" id="current-user-badge">Badge: #8821</span>
+          </div>
+          <button id="btn-logout" class="btn-icon" title="Logout Session"><i class="fa-solid fa-right-from-bracket"></i></button>
+        </div>
+      </div>
+    </aside>
+    
+    <!-- Main Workspace -->
+    <main class="main-workspace">
+      
+      <!-- Top Tactical Header Bar -->
+      <header class="top-bar">
+        <div class="top-bar-left">
+          <h2 id="current-tab-title">Tactical Command Center</h2>
+          <p id="current-tab-desc" class="subtitle text-secondary">Real-time emergency updates & active patrols</p>
+        </div>
+        
+        <div class="top-bar-right">
+          <!-- System Metrics Badges -->
+          <div class="tactical-badge border-cyan">
+            <span class="badge-label">SIM TIME</span>
+            <span class="badge-val orbitron" id="system-clock">12:00:00</span>
+          </div>
+          <div class="tactical-badge border-blue">
+            <span class="badge-label">ACTIVE PATROLS</span>
+            <span class="badge-val orbitron" id="active-patrols-badge">12</span>
+          </div>
+          <div class="tactical-badge border-amber">
+            <span class="badge-label">CRIT ALERTS</span>
+            <span class="badge-val orbitron text-amber" id="critical-alerts-badge">3</span>
+          </div>
+        </div>
+      </header>
+      
+      <!-- Content Area with Tab Panels -->
+      <div class="tab-content-container">
+        
+        <!-- ================= TACTICAL COMMAND DASHBOARD ================= -->
+        <section class="tab-panel active" id="panel-dashboard">
+          <div class="dashboard-grid">
+            
+            <!-- Core Metric Cards -->
+            <div class="metrics-row">
+              <div class="metric-card border-left-red">
+                <div class="card-icon text-red"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <div class="card-content">
+                  <span class="metric-label">Active Incidents</span>
+                  <h3 class="metric-value orbitron" id="stat-active-incidents">08</h3>
+                  <span class="metric-trend trend-up"><i class="fa-solid fa-caret-up"></i> +12% vs yesterday</span>
+                </div>
+              </div>
+              <div class="metric-card border-left-cyan">
+                <div class="card-icon text-cyan"><i class="fa-solid fa-truck-field"></i></div>
+                <div class="card-content">
+                  <span class="metric-label">Patrol Coverage</span>
+                  <h3 class="metric-value orbitron" id="stat-patrol-coverage">92%</h3>
+                  <span class="metric-trend trend-ok"><i class="fa-solid fa-check"></i> Optimal sectors</span>
+                </div>
+              </div>
+              <div class="metric-card border-left-emerald">
+                <div class="card-icon text-emerald"><i class="fa-solid fa-handcuffs"></i></div>
+                <div class="card-content">
+                  <span class="metric-label">Clearance Rate</span>
+                  <h3 class="metric-value orbitron" id="stat-clearance-rate">76.4%</h3>
+                  <span class="metric-trend trend-up"><i class="fa-solid fa-caret-up"></i> +3.1% this week</span>
+                </div>
+              </div>
+              <div class="metric-card border-left-amber">
+                <div class="card-icon text-amber"><i class="fa-solid fa-radar"></i></div>
+                <div class="card-content">
+                  <span class="metric-label">AI Hotspot Risk</span>
+                  <h3 class="metric-value orbitron" id="stat-hotspot-risk">Elevated</h3>
+                  <span class="metric-trend text-secondary">Predicted Peak: 23:00</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Dashboard Main Row -->
+            <div class="dashboard-main-row">
+              
+              <!-- Left Column: Live Incidents Alert Feed -->
+              <div class="dashboard-panel flex-grow shadow-panel border-box">
+                <div class="panel-header">
+                  <div class="panel-title">
+                    <i class="fa-solid fa-bell text-red animate-pulse"></i>
+                    <h3>Live Dispatch & Alerts Feed</h3>
+                  </div>
+                  <div class="panel-actions">
+                    <span class="live-dot-badge"><span class="pulse-dot status-danger"></span> LIVE FEED</span>
+                  </div>
+                </div>
+                <div class="panel-body flex-column overflow-y max-h-500" id="live-alerts-feed">
+                  <!-- Alerts dynamically loaded here -->
+                </div>
+              </div>
+              
+              <!-- Right Column: Interactive Map Widget & Stats -->
+              <div class="dashboard-panel width-40 shadow-panel border-box">
+                <div class="panel-header">
+                  <div class="panel-title">
+                    <i class="fa-solid fa-bullseye text-cyan"></i>
+                    <h3>System Hotspot Threat Matrix</h3>
+                  </div>
+                </div>
+                <div class="panel-body flex-column gap-md overflow-y max-h-500">
+                  <div id="mini-map-container" class="map-widget-container">
+                    <!-- Leaflet map instance will load here -->
+                  </div>
+                  
+                  <div class="xai-explanation-box">
+                    <div class="xai-header">
+                      <i class="fa-solid fa-brain text-cyan"></i>
+                      <span>AI Model Rationale (Explainable AI)</span>
+                    </div>
+                    <p class="xai-text" id="dashboard-xai-explanation">
+                      The predictive model flags sectors B2 and A5 as "Critical Threat Zones" due to localized burglary patterns, proximity to liquor outlets, and limited patrol density in the 22:00-02:00 window.
+                    </p>
+                    <div class="xai-feature-bars">
+                      <div class="feature-bar-item">
+                        <div class="bar-info"><span>Historical Crime Density</span><span>42%</span></div>
+                        <div class="bar-track"><div class="bar-fill bg-red w-42"></div></div>
+                      </div>
+                      <div class="feature-bar-item">
+                        <div class="bar-info"><span>Liquor Outlet Proximity</span><span>28%</span></div>
+                        <div class="bar-track"><div class="bar-fill bg-amber w-28"></div></div>
+                      </div>
+                      <div class="feature-bar-item">
+                        <div class="bar-info"><span>Patrol Absence Weight</span><span>20%</span></div>
+                        <div class="bar-track"><div class="bar-fill bg-cyan w-20"></div></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+          </div>
+        </section>
+        
+        <!-- ================= SPATIAL ANALYSIS MAP ================= -->
+        <section class="tab-panel" id="panel-map">
+          <div class="map-layout">
+            <!-- Map Canvas -->
+            <div id="main-map-canvas" class="full-map-canvas"></div>
+            
+            <!-- Floating Map Control Sidebar -->
+            <div class="map-floating-sidebar panel-glass">
+              <div class="sidebar-section">
+                <h3>Map Layers</h3>
+                <div class="control-group">
+                  <label class="custom-checkbox">
+                    <input type="checkbox" id="layer-incidents" checked>
+                    <span class="checkmark"></span>
+                    <span>Crime Incidents</span>
+                  </label>
+                  <label class="custom-checkbox">
+                    <input type="checkbox" id="layer-hotspots" checked>
+                    <span class="checkmark"></span>
+                    <span>AI Predicted Hotspots</span>
+                  </label>
+                  <label class="custom-checkbox">
+                    <input type="checkbox" id="layer-patrols" checked>
+                    <span class="checkmark"></span>
+                    <span>Active Patrol Units</span>
+                  </label>
+                  <label class="custom-checkbox">
+                    <input type="checkbox" id="layer-cameras" checked>
+                    <span class="checkmark"></span>
+                    <span>CCTV Sensors</span>
+                  </label>
+                </div>
+              </div>
+              
+              <div class="sidebar-section">
+                <h3>Filter by Category</h3>
+                <select id="map-category-filter" class="form-control" aria-label="Filter map by crime category">
+                  <option value="all">All Crime Types</option>
+                  <option value="violent">Violent Crime</option>
+                  <option value="property">Property Theft / Burglary</option>
+                  <option value="narcotics">Narcotics Trafficking</option>
+                  <option value="cyber">Cyber & Fraud</option>
+                </select>
+              </div>
+
+              <div class="sidebar-section">
+                <h3>Explainable AI (Hotspot Focus)</h3>
+                <div class="xai-card" id="map-xai-card">
+                  <p class="text-secondary italic text-small">Click any hotspot zone on the map to trigger local Explainable AI feature decomposition.</p>
+                  <div id="map-xai-content" class="init-hidden">
+                    <h4 class="text-cyan font-semibold mb-sm orbitron" id="map-xai-zone">Zone B-12 (Downtown)</h4>
+                    <div class="xai-explanation-box no-margin">
+                      <div class="xai-header">
+                        <i class="fa-solid fa-wand-magic-sparkles text-cyan"></i>
+                        <span>Local SHAP Contribution</span>
+                      </div>
+                      <div class="xai-feature-bars mt-sm" id="map-xai-bars">
+                        <!-- Loaded dynamically -->
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        
+        <!-- ================= NETWORK LINK ANALYZER ================= -->
+        <section class="tab-panel" id="panel-network">
+          <div class="network-layout">
+            
+            <!-- Network Visualizer Canvas -->
+            <div class="network-canvas-container">
+              <div class="network-toolbar">
+                <button id="net-zoom-in" class="btn-icon" title="Zoom In"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+                <button id="net-zoom-out" class="btn-icon" title="Zoom Out"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+                <button id="net-fit" class="btn-icon" title="Fit Nodes"><i class="fa-solid fa-expand"></i></button>
+                <span class="separator"></span>
+                <span class="text-secondary text-small">Interactive Canvas: Drag nodes, click to expand profile.</span>
+              </div>
+              <div id="network-canvas"></div>
+            </div>
+            
+            <!-- Network Control / Dossier Panel -->
+            <div class="network-sidebar panel-glass">
+              
+              <!-- Association Finder -->
+              <div class="sidebar-section border-bottom">
+                <h3>Connection Pathfinder</h3>
+                <p class="text-secondary text-small mb-sm">Find shortest criminal link between two entities.</p>
+                <div class="form-group gap-sm flex-column">
+                  <select id="path-start-node" class="form-control" aria-label="Select start suspect node for pathfinder">
+                    <option value="">Select Start Suspect...</option>
+                    <!-- Filled dynamically -->
+                  </select>
+                  <select id="path-end-node" class="form-control" aria-label="Select target suspect node for pathfinder">
+                    <option value="">Select Target Suspect...</option>
+                    <!-- Filled dynamically -->
+                  </select>
+                  <button id="btn-find-path" class="btn btn-primary w-100">
+                    <i class="fa-solid fa-route"></i> Calculate Association Path
+                  </button>
+                  <button id="btn-clear-path" class="btn btn-secondary w-100 init-hidden">
+                    Clear Pathfinder
+                  </button>
+                </div>
+                <div id="pathfinder-result" class="pathfinder-path-container mt-sm"></div>
+              </div>
+              
+              <!-- Suspect Dossier Details -->
+              <div class="sidebar-section flex-grow overflow-y">
+                <h3>Entity Inspector</h3>
+                <div id="dossier-empty-state">
+                  <div class="text-center py-lg text-secondary">
+                    <i class="fa-solid fa-fingerprint fa-3x mb-md opacity-40"></i>
+                    <p>Select a suspect, vehicle, or incident node on the canvas to inspect AI dossiers and linkages.</p>
+                  </div>
+                </div>
+                <div id="dossier-display-state" class="init-hidden">
+                  <div class="dossier-card">
+                    <div class="dossier-header-row">
+                      <div class="dossier-avatar-container">
+                        <i class="fa-solid fa-user-ninja dossier-avatar-placeholder" id="dossier-avatar"></i>
+                      </div>
+                      <div class="dossier-meta">
+                        <h4 id="dossier-name" class="orbitron">John "Trigger" Doe</h4>
+                        <span class="dossier-threat-badge bg-red" id="dossier-threat">CRITICAL RISK</span>
+                        <span class="text-secondary text-small" id="dossier-id">ID: SP-1082</span>
+                      </div>
+                    </div>
+                    
+                    <div class="dossier-body">
+                      <div class="dossier-stats-grid">
+                        <div class="dossier-stat">
+                          <span class="label">Known Convictions</span>
+                          <span class="val" id="dossier-convictions">5</span>
+                        </div>
+                        <div class="dossier-stat">
+                          <span class="label">Last Activity</span>
+                          <span class="val" id="dossier-last-seen">2026-07-02</span>
+                        </div>
+                      </div>
+                      
+                      <div class="dossier-section">
+                        <h5>AI Linkages & Bio</h5>
+                        <p class="dossier-text" id="dossier-bio">Primary suspect in Downtown robberies. Associated with Red sedan License plate 49X-Y33.</p>
+                      </div>
+                      
+                      <div class="dossier-section">
+                        <h5>Network Influence Metrics</h5>
+                        <div class="xai-feature-bars">
+                          <div class="feature-bar-item">
+                            <div class="bar-info"><span>Eigenvector Centrality</span><span id="metric-centrality">0.88</span></div>
+                            <div class="bar-track"><div class="bar-fill bg-cyan w-88" id="bar-centrality"></div></div>
+                          </div>
+                          <div class="feature-bar-item">
+                            <div class="bar-info"><span>Suspect Recidivism Score</span><span id="metric-recidivism">92%</span></div>
+                            <div class="bar-track"><div class="bar-fill bg-red w-92" id="bar-recidivism"></div></div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div class="dossier-section">
+                        <h5>Associated Cases & Elements</h5>
+                        <ul class="dossier-links-list" id="dossier-links">
+                          <!-- Loaded dynamically -->
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+            </div>
+            
+          </div>
+        </section>
+        
+        <!-- ================= PREDICTIVE INSIGHTS ================= -->
+        <section class="tab-panel" id="panel-predictive">
+          <div class="predictive-layout">
+            
+            <div class="predictive-sidebar">
+              <!-- What-If Control Panel -->
+              <div class="sidebar-section panel-glass height-100">
+                <h3>"What-If" Predictive Simulator</h3>
+                <p class="text-secondary text-small mb-md">Simulate shifts in social and operational variables to observe how they affect the AI forecasted crime rates.</p>
+                
+                <div class="slider-group">
+                  <div class="slider-label-row">
+                    <span>Patrol Fleet Density</span>
+                    <span id="val-sim-patrols" class="text-cyan">1.0x</span>
+                  </div>
+                  <input type="range" id="slider-sim-patrols" class="custom-slider" min="0.5" max="2.0" step="0.1" value="1.0" aria-label="Patrol Fleet Density Simulator Slider">
+                  <span class="slider-helper">Increasing patrol density decreases property crime prediction models.</span>
+                </div>
+                
+                <div class="slider-group">
+                  <div class="slider-label-row">
+                    <span>Precipitation (Weather)</span>
+                    <span id="val-sim-weather" class="text-amber">Dry</span>
+                  </div>
+                  <input type="range" id="slider-sim-weather" class="custom-slider" min="0" max="2" step="1" value="0" aria-label="Precipitation Weather Simulator Slider">
+                  <span class="slider-helper">Heavy rain significantly dampens outdoor violent incidents, but shifts property risks.</span>
+                </div>
+                
+                <div class="slider-group">
+                  <div class="slider-label-row">
+                    <span>Street Lighting Efficiency</span>
+                    <span id="val-sim-lighting" class="text-emerald">80%</span>
+                  </div>
+                  <input type="range" id="slider-sim-lighting" class="custom-slider" min="30" max="100" step="5" value="80" aria-label="Street Lighting Efficiency Simulator Slider">
+                  <span class="slider-helper">Upgrading city lighting creates localized deterrence.</span>
+                </div>
+                
+                <div class="slider-group">
+                  <div class="slider-label-row">
+                    <span>Economic Hardship Index</span>
+                    <span id="val-sim-economy" class="text-red">Normal</span>
+                  </div>
+                  <input type="range" id="slider-sim-economy" class="custom-slider" min="0" max="20" step="1" value="10" aria-label="Economic Hardship Index Simulator Slider">
+                  <span class="slider-helper">Unemployment indexing strongly impacts narcotics and larceny predictive baselines.</span>
+                </div>
+                
+                <div class="mt-lg">
+                  <button id="btn-recalc-prediction" class="btn btn-primary w-100">
+                    <i class="fa-solid fa-arrows-spin"></i> Recalculate AI Projections
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <div class="predictive-charts-grid">
+              
+              <!-- Time Series Projections Chart -->
+              <div class="dashboard-panel shadow-panel border-box">
+                <div class="panel-header">
+                  <div class="panel-title">
+                    <i class="fa-solid fa-chart-line text-cyan"></i>
+                    <h3>7-Day Crime Incident Forecasting (AI Engine)</h3>
+                  </div>
+                  <div class="panel-actions">
+                    <span class="badge bg-cyan">LSTM model: 89.2% Accuracy</span>
+                  </div>
+                </div>
+                <div class="panel-body">
+                  <div id="forecast-chart-canvas" class="chart-container"></div>
+                </div>
+              </div>
+              
+              <!-- SHAP/LIME Feature Weights -->
+              <div class="dashboard-panel shadow-panel border-box">
+                <div class="panel-header">
+                  <div class="panel-title">
+                    <i class="fa-solid fa-diagram-project text-amber"></i>
+                    <h3>Explainable AI: Model Feature Impact (SHAP Breakdown)</h3>
+                  </div>
+                </div>
+                <div class="panel-body flex-row gap-lg align-center">
+                  <div class="width-50">
+                    <div id="shap-chart-canvas" class="chart-container-half"></div>
+                  </div>
+                  <div class="width-50 flex-column gap-sm">
+                    <h4 class="text-primary font-semibold mb-xs">How to read this visualization:</h4>
+                    <p class="text-secondary text-small">
+                      The SHAP values explain how much each risk factor pushes the prediction higher or lower. Positive values (red/amber) increase predicted crime risks, whereas negative values (blue/cyan) reduce it.
+                    </p>
+                    <div class="alert-box alert-info">
+                      <i class="fa-solid fa-circle-info"></i>
+                      <span><strong>Key Insight:</strong> Simulating a <strong>20% patrol increase</strong> pushes the Patrol Absence parameter into negative contribution territory, dropping forecasted crime by 14%.</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+            </div>
+            
+          </div>
+        </section>
+        
+        <!-- ================= UNIFIED EXPLORER ================= -->
+        <section class="tab-panel" id="panel-explorer">
+          <div class="explorer-layout">
+            
+            <!-- Explorer Top Controls -->
+            <div class="explorer-controls panel-glass flex-row justify-between align-center p-md">
+              <div class="flex-row gap-md flex-grow">
+                <div class="search-input-wrapper">
+                  <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                  <input type="text" id="explorer-search" class="form-control search-input" placeholder="Search by suspect, incident category, case ID, vehicle..." aria-label="Search Database Explorer">
+                </div>
+                
+                <select id="explorer-category" class="form-control select-width" aria-label="Filter database by category">
+                  <option value="all">All Categories</option>
+                  <option value="violent">Violent</option>
+                  <option value="property">Property</option>
+                  <option value="narcotics">Narcotics</option>
+                </select>
+
+                <select id="explorer-status" class="form-control select-width" aria-label="Filter database by status">
+                  <option value="all">All Statuses</option>
+                  <option value="Open">Open</option>
+                  <option value="Investigating">Investigating</option>
+                  <option value="Closed">Closed</option>
+                </select>
+              </div>
+              
+              <div class="flex-row gap-md">
+                <button id="btn-show-ingest" class="btn btn-secondary">
+                  <i class="fa-solid fa-cloud-arrow-up"></i> Ingest Raw Data
+                </button>
+              </div>
+            </div>
+            
+            <!-- Ingest File / Report Panel Modal-Like Drawer -->
+            <div id="ingest-drawer" class="ingest-drawer panel-glass init-hidden">
+              <div class="drawer-header flex-row justify-between align-center border-bottom pb-sm mb-md">
+                <h3 class="orbitron"><i class="fa-solid fa-brain text-cyan mr-xs"></i> AI Automated Data Ingestion</h3>
+                <button id="btn-close-ingest" class="btn-icon" type="button" title="Close ingestion panel" aria-label="Close ingestion panel"><i class="fa-solid fa-xmark"></i></button>
+              </div>
+              
+              <div class="flex-row gap-lg">
+                <!-- Manual Text / Report Parsing Input -->
+                <div class="width-50 flex-column gap-sm border-right pr-lg">
+                  <h4>Paste Police Report or CAD Log</h4>
+                  <p class="text-secondary text-small">The AI engine will automatically extract entities, locations, date/time, and insert it into the master database.</p>
+                  <textarea id="raw-report-text" class="form-control text-area-large" placeholder="E.g.: REPORT: 2026-07-11 20:30. A robbery occurred at 455 Market St. The victim stated a suspect, matching the alias 'Trigger', fled in a Blue Sedan (Plate: 49X-Y33). Severe weapon threat involved." aria-label="Raw Report Narrative Input"></textarea>
+                  <button id="btn-parse-report" class="btn btn-primary mt-sm">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> AI Parse & Ingest Report
+                  </button>
+                </div>
+                
+                <!-- CSV File Upload Simulation -->
+                <div class="width-50 flex-column gap-sm">
+                  <h4>CSV Batch Data Ingest</h4>
+                  <p class="text-secondary text-small">Simulate ingesting multiple records via spreadsheet. Download sample template structure.</p>
+                  <div class="drag-drop-zone" id="csv-drag-zone">
+                    <i class="fa-solid fa-file-csv fa-3x text-secondary mb-md"></i>
+                    <span>Drag and drop incident CSV file here, or click to upload</span>
+                    <input type="file" id="csv-file-input" class="init-hidden" accept=".csv" aria-label="CSV file upload selector">
+                  </div>
+                  
+                  <div id="upload-status" class="alert-box alert-success init-hidden">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span id="upload-status-text">Ingestion successful! Added 4 records to database.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Table View Grid -->
+            <div class="table-container shadow-panel">
+              <table class="unified-table">
+                <thead>
+                  <tr>
+                    <th>Case ID</th>
+                    <th>Date & Time</th>
+                    <th>Category</th>
+                    <th>Description</th>
+                    <th>Location</th>
+                    <th>Risk Rating</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="explorer-table-body">
+                  <!-- Dynamically generated rows -->
+                </tbody>
+              </table>
+            </div>
+            
+          </div>
+        </section>
+        
+        <!-- ================= AI INVESTIGATOR CHAT ================= -->
+        <section class="tab-panel" id="panel-chat">
+          <div class="chat-layout">
+            
+            <!-- Suggestions Sidebar -->
+            <div class="chat-sidebar panel-glass">
+              <h3>Suggested Queries</h3>
+              <p class="text-secondary text-small mb-md">Click a template query to run it through AegisEye NLP Assistant:</p>
+              
+              <div class="query-suggestions-list">
+                <button class="suggestion-chip" data-query="Show me a list of burglary incidents in Downtown.">
+                  <i class="fa-solid fa-magnifying-glass"></i> Burglaries in Downtown
+                </button>
+                <button class="suggestion-chip" data-query="Find connections and associations for John 'Trigger' Doe.">
+                  <i class="fa-solid fa-circle-nodes"></i> Connect John Doe
+                </button>
+                <button class="suggestion-chip" data-query="What is the forecasted crime trend for next week?">
+                  <i class="fa-solid fa-chart-line"></i> 7-Day Forecast Trend
+                </button>
+                <button class="suggestion-chip" data-query="Analyze crime factors for Zone B-12. Why is the risk high?">
+                  <i class="fa-solid fa-brain"></i> Hotspot Risk Factors
+                </button>
+                <button class="suggestion-chip" data-query="Find connection between suspect John 'Trigger' Doe and suspect Marcus 'Slick' Vance.">
+                  <i class="fa-solid fa-circle-nodes"></i> Path: John to Marcus
+                </button>
+              </div>
+              
+              <!-- Brief System Help -->
+              <div class="alert-box alert-info mt-lg">
+                <i class="fa-solid fa-circle-info"></i>
+                <div class="text-small">
+                  <strong>AegisEye NLP:</strong> Standard NLP searches match categories, locations, suspects, and generate interactive maps, tables, graphs, and forecasting charts directly in chat.
+                </div>
+              </div>
+            </div>
+            
+            <!-- Chat Interface -->
+            <div class="chat-interface-panel shadow-panel">
+              <!-- Chat Logs -->
+              <div class="chat-messages-container" id="chat-messages">
+                <!-- Welcome greeting -->
+                <div class="chat-message bot">
+                  <div class="message-avatar"><i class="fa-solid fa-robot"></i></div>
+                  <div class="message-bubble">
+                    <p>Greetings Investigator. I am the AegisEye AI Copilot. I have indexed the crime registries, geospatial patrols, and suspect network links.</p>
+                    <p>Ask me to query crimes, map locations, inspect networks, or forecast hotspots with Explainable AI.</p>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Chat Input Panel -->
+              <div class="chat-input-bar">
+                <input type="text" id="chat-input-field" class="form-control chat-input" placeholder="Type a natural language query (e.g. 'Show me burglaries' or 'Connect John Doe')..." aria-label="Natural Language Query Input">
+                <button id="btn-send-chat" class="btn btn-primary">
+                  <i class="fa-solid fa-paper-plane"></i> Send
+                </button>
+              </div>
+            </div>
+            
+          </div>
+        </section>
+        
+      </div>
+      
+    </main>
+  </div>
+  
+  <!-- Audio Notification Elements (Optional) -->
+  <audio id="alert-sfx" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-84.wav" preload="auto"></audio>
+  
+  <!-- Load Scripts -->
+  <script src="data.js"></script>
+  <script src="ai.js"></script>
+  <script src="map.js"></script>
+  <script src="network.js"></script>
+  <script src="predictive.js"></script>
+  <script src="dataManager.js"></script>
+  <script src="dashboard.js"></script>
+  <script src="auth.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
