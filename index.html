@@ -25,6 +25,9 @@
   
   <!-- ApexCharts CDN -->
   <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+  <!-- Marked.js Markdown Parser CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   
   <!-- Custom CSS -->
   <link rel="stylesheet" href="styles.css">
@@ -93,61 +96,87 @@
 
         <!-- Form 2: Access Registration (Sign Up) -->
         <form class="auth-form" id="signup-form-block" autocomplete="off" onsubmit="return false;">
-          <div class="form-row-login">
+          <!-- Admin Registration Lock Verification Screen -->
+          <div id="admin-lock-container" class="admin-lock-box">
+            <div class="admin-lock-badge">
+              <i class="fa-solid fa-lock admin-lock-icon"></i>
+            </div>
+            <h3 class="admin-lock-title">Admin Registration Access</h3>
+            <p class="admin-lock-subtitle">Only authorized administrators can create new accounts.</p>
+            
             <div class="form-group-login">
-              <label for="signup-name">Full Name</label>
+              <label for="admin-register-password">Admin Verification Password</label>
               <div class="input-icon-wrapper">
-                <i class="fa-solid fa-user-tag input-icon"></i>
-                <input type="text" id="signup-name" class="form-control-login" placeholder="e.g. Det. Judy Hopps" required>
+                <i class="fa-solid fa-key input-icon"></i>
+                <input type="password" id="admin-register-password" class="form-control-login" placeholder="Enter Admin Password" required autocomplete="off">
               </div>
             </div>
-            <div class="form-group-login">
-              <label for="signup-badge">Badge ID</label>
-              <div class="input-icon-wrapper">
-                <i class="fa-solid fa-id-badge input-icon"></i>
-                <input type="text" id="signup-badge" class="form-control-login" placeholder="e.g. ZPD-2016" required>
+
+            <div id="admin-lock-error-msg" class="alert-msg error-msg"></div>
+
+            <button type="button" id="btn-admin-verify-submit" class="btn-login w-100">
+              <i class="fa-solid fa-user-shield"></i> VERIFY ADMIN ACCESS
+            </button>
+          </div>
+
+          <!-- Registration Input Fields (Unlocked after verification) -->
+          <div id="signup-fields-container" style="display: none;">
+            <div class="form-row-login">
+              <div class="form-group-login">
+                <label for="signup-name">Full Name</label>
+                <div class="input-icon-wrapper">
+                  <i class="fa-solid fa-user-tag input-icon"></i>
+                  <input type="text" id="signup-name" class="form-control-login" placeholder="e.g. Det. Judy Hopps" required>
+                </div>
+              </div>
+              <div class="form-group-login">
+                <label for="signup-badge">Badge ID</label>
+                <div class="input-icon-wrapper">
+                  <i class="fa-solid fa-id-badge input-icon"></i>
+                  <input type="text" id="signup-badge" class="form-control-login" placeholder="e.g. ZPD-2016" required>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div class="form-group-login">
-            <label for="signup-role">Department Role / Rank</label>
-            <div class="input-icon-wrapper">
-              <i class="fa-solid fa-user-shield input-icon"></i>
-              <select id="signup-role" class="form-control-login select-login" required>
-                <option value="" disabled selected>Select Role/Rank...</option>
-                <option value="Officer">Officer</option>
-                <option value="Detective">Detective</option>
-                <option value="Sergeant">Sergeant</option>
-                <option value="Lieutenant">Lieutenant</option>
-                <option value="Captain">Captain</option>
-                <option value="Lead Analyst">Lead Analyst</option>
-                <option value="Technical Specialist">Technical Specialist</option>
-              </select>
+            <div class="form-group-login">
+              <label for="signup-role">Department Role / Rank</label>
+              <div class="input-icon-wrapper">
+                <i class="fa-solid fa-user-shield input-icon"></i>
+                <select id="signup-role" class="form-control-login select-login" required>
+                  <option value="" disabled selected>Select Role/Rank...</option>
+                  <option value="Officer">Officer</option>
+                  <option value="Detective">Detective</option>
+                  <option value="Sergeant">Sergeant</option>
+                  <option value="Lieutenant">Lieutenant</option>
+                  <option value="Captain">Captain</option>
+                  <option value="Lead Analyst">Lead Analyst</option>
+                  <option value="Technical Specialist">Technical Specialist</option>
+                </select>
+              </div>
             </div>
-          </div>
 
-          <div class="form-group-login">
-            <label for="signup-username">Desired Username</label>
-            <div class="input-icon-wrapper">
-              <i class="fa-solid fa-at input-icon"></i>
-              <input type="text" id="signup-username" class="form-control-login" placeholder="e.g. hopps" required>
+            <div class="form-group-login">
+              <label for="signup-username">Desired Username</label>
+              <div class="input-icon-wrapper">
+                <i class="fa-solid fa-at input-icon"></i>
+                <input type="text" id="signup-username" class="form-control-login" placeholder="e.g. hopps" required>
+              </div>
             </div>
-          </div>
 
-          <div class="form-group-login">
-            <label for="signup-password">Secure Password</label>
-            <div class="input-icon-wrapper">
-              <i class="fa-solid fa-lock input-icon"></i>
-              <input type="password" id="signup-password" class="form-control-login" placeholder="••••••••" required>
+            <div class="form-group-login">
+              <label for="signup-password">Secure Password</label>
+              <div class="input-icon-wrapper">
+                <i class="fa-solid fa-lock input-icon"></i>
+                <input type="password" id="signup-password" class="form-control-login" placeholder="••••••••" required>
+              </div>
             </div>
+            
+            <div id="signup-error-msg" class="alert-msg text-red"></div>
+            
+            <button type="submit" id="btn-signup-submit" class="btn-login w-100">
+              <i class="fa-solid fa-shield-halved"></i> REGISTER CREDENTIALS
+            </button>
           </div>
-          
-          <div id="signup-error-msg" class="alert-msg text-red"></div>
-          
-          <button type="submit" id="btn-signup-submit" class="btn-login w-100">
-            <i class="fa-solid fa-shield-halved"></i> REGISTER CREDENTIALS
-          </button>
         </form>
       </div>
 
@@ -757,7 +786,7 @@
               <div class="alert-box alert-info mt-lg">
                 <i class="fa-solid fa-circle-info"></i>
                 <div class="text-small">
-                  <strong>AegisEye NLP:</strong> Standard NLP searches match categories, locations, suspects, and generate interactive maps, tables, graphs, and forecasting charts directly in chat.
+                  <strong>LLM AI Copilot Active:</strong> Powered by Large Language Models. Ask any general question, law enforcement guidance, crime analysis, or select a quick query template.
                 </div>
               </div>
             </div>
@@ -770,15 +799,15 @@
                 <div class="chat-message bot">
                   <div class="message-avatar"><i class="fa-solid fa-robot"></i></div>
                   <div class="message-bubble">
-                    <p>Greetings Investigator. I am the AegisEye AI Copilot. I have indexed the crime registries, geospatial patrols, and suspect network links.</p>
-                    <p>Ask me to query crimes, map locations, inspect networks, or forecast hotspots with Explainable AI.</p>
+                    <p>Greetings Investigator. I am the <strong>AegisEye AI Copilot</strong>, powered by Large Language Models and connected to crime database registries.</p>
+                    <p>Ask me anything — from general questions and law enforcement strategies to specific crime queries, suspect networks, and 7-day trend forecasts.</p>
                   </div>
                 </div>
               </div>
               
               <!-- Chat Input Panel -->
               <div class="chat-input-bar">
-                <input type="text" id="chat-input-field" class="form-control chat-input" placeholder="Type a natural language query (e.g. 'Show me burglaries' or 'Connect John Doe')..." aria-label="Natural Language Query Input">
+                <input type="text" id="chat-input-field" class="form-control chat-input" placeholder="Ask any question (e.g. 'Hi', 'What is cyber crime?', or 'Show burglaries in Downtown')..." aria-label="Natural Language Query Input">
                 <button id="btn-send-chat" class="btn btn-primary">
                   <i class="fa-solid fa-paper-plane"></i> Send
                 </button>

@@ -4,6 +4,9 @@ const AegisAuth = (() => {
   const SESSION_KEY = "aegis_session_user";
 
   let users = [];
+  // In-memory state for admin registration lock verification
+  // Resets to false on page refresh (Requirements 11 & 13)
+  let isAdminUnlocked = false;
 
   // Default seeded admin credentials
   const defaultUsers = [
@@ -125,6 +128,19 @@ const AegisAuth = (() => {
     const loginForm = document.getElementById("login-form-block");
     const regForm   = document.getElementById("signup-form-block");
 
+    const adminLockBox = document.getElementById("admin-lock-container");
+    const signupFields = document.getElementById("signup-fields-container");
+
+    const updateRegisterView = () => {
+      if (isAdminUnlocked) {
+        if (adminLockBox) adminLockBox.style.display = "none";
+        if (signupFields) signupFields.style.display = "block";
+      } else {
+        if (adminLockBox) adminLockBox.style.display = "flex";
+        if (signupFields) signupFields.style.display = "none";
+      }
+    };
+
     tabLogin?.addEventListener("click", () => {
       tabLogin.classList.add("active");   tabSignup.classList.remove("active");
       loginForm.classList.add("active");  regForm.classList.remove("active");
@@ -134,7 +150,58 @@ const AegisAuth = (() => {
     tabSignup?.addEventListener("click", () => {
       tabSignup.classList.add("active");  tabLogin.classList.remove("active");
       regForm.classList.add("active");    loginForm.classList.remove("active");
+      updateRegisterView();
       clearErrors();
+    });
+
+    /* Admin Password Verification Handler */
+    const verifyAdminPassword = async () => {
+      const passwordInput = document.getElementById("admin-register-password");
+      const password = passwordInput ? passwordInput.value : "";
+      const errorElId = "admin-lock-error-msg";
+
+      if (!password) {
+        showError(errorElId, "Please enter the admin registration password.");
+        return;
+      }
+
+      try {
+        const response = await fetch("/api/verify-admin-registration", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          isAdminUnlocked = true;
+          if (adminLockBox) adminLockBox.style.display = "none";
+          if (signupFields) {
+            signupFields.style.display = "block";
+            signupFields.classList.add("unlock-fade-in");
+          }
+          if (passwordInput) passwordInput.value = "";
+          clearErrors();
+        } else {
+          showError(errorElId, data.message || "Incorrect Admin Password");
+        }
+      } catch (err) {
+        console.error("Admin verification request failed:", err);
+        showError(errorElId, "Incorrect Admin Password");
+      }
+    };
+
+    document.getElementById("btn-admin-verify-submit")?.addEventListener("click", (e) => {
+      e.preventDefault();
+      verifyAdminPassword();
+    });
+
+    document.getElementById("admin-register-password")?.addEventListener("keyup", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        verifyAdminPassword();
+      }
     });
 
     /* Login submit */
