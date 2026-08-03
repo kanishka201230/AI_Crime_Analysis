@@ -3,6 +3,8 @@
 
 Live server link-https://ai-crime.netlify.app/
 
+Request Access password :CrimeAdmin@2026
+
 An AI-powered web application that helps law enforcement agencies analyze crime data, predict crime hotspots, visualize incidents, and support proactive policing through intelligent analytics and interactive dashboards.
 
 ---
